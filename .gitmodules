@@ -1,0 +1,3 @@
+[submodule "rapidpro"]
+	path = rapidpro
+	url = https://github.com/rapidpro/rapidpro.git

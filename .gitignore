@@ -1,0 +1,7 @@
+.idea
+.venv
+.envrc
+Pipfile
+Pipfile.lock
+rapidpro/temba/settings.py
+*.egg-info
