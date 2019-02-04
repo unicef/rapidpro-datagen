@@ -1,19 +1,15 @@
 import factory
-from django.conf import settings
-from timezone_field import TimeZoneField
+from ..models import auth
 
-import temba.orgs.models as orgs
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from factory import SubFactory
-from factory.faker import faker
-import temba.locations.models as locations
 
 # @factory.django.mute_signals(post_save)
 class UserFactory(factory.DjangoModelFactory):
-    username = factory.Sequence(lambda n: "user-%03d" % n)
+    username = factory.Faker('email')
+    first_name = factory.Faker('first_name')
+    last_name = factory.Faker('last_name')
+    email = factory.Faker('email')
+    password = factory.PostGenerationMethodCall('set_password', '123')
 
     class Meta:
-        model = User
+        model = auth.User
         django_get_or_create = ('username',)
-

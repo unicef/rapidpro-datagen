@@ -1,3 +1,5 @@
+import uuid
+
 import factory
 
 from .auth import UserFactory
@@ -10,3 +12,9 @@ class SmartModelFactory(factory.DjangoModelFactory):
     class Meta:
         abstract = True
 
+
+class TembaModelFactory(SmartModelFactory):
+    uuid = factory.Sequence(lambda n: uuid.uuid4())
+
+    class Meta:
+        abstract = True

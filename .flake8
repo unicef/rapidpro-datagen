@@ -1,0 +1,10 @@
+[flake8]
+max-complexity = 12
+max-line-length = 120
+exclude = src/datagen/settings.py
+ignore = E401,W391,E128,E261,E731,Q000,W504,W606
+
+per-file-ignores =
+    project/__init__.py:F401
+    setup.py:E121
+    other_project/*:W9

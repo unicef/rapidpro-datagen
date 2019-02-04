@@ -10,10 +10,12 @@
 import copy
 import warnings
 
-SECRET_KEY = 'klj;kljhlkjhlkjhlkjh'
 from temba.settings_common import *  # noqa
 
-DEBUG_TOOLBAR = False
+SECRET_KEY = 'klj;kljhlkjhlkjhlkjh'
+
+DEBUG_TOOLBAR = True
+DEBUG = True
 DATABASES = {'default': {"ENGINE": "django.contrib.gis.db.backends.postgis",
                          "NAME": "rapidpro",
                          "USER": "postgres",
@@ -93,4 +95,23 @@ warnings.filterwarnings(
 # Make our sitestatic URL be our static URL on development
 # -----------------------------------------------------------------------------------
 STATIC_URL = "/sitestatic/"
-SECRET_KEY = 'lkjhlkjhlkjhlkjh'
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "root": {"level": "WARNING", "handlers": ["console"]},
+    "formatters": {"verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"}},
+    "handlers": {
+        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "verbose"},
+        "null": {"class": "logging.NullHandler"},
+    },
+    "loggers": {
+        # "pycountry": {"level": "ERROR", "handlers": ["console"], "propagate": False},
+        # "django.security.DisallowedHost": {"handlers": ["null"], "propagate": False},
+        "django.db.backends": {"level": "ERROR", "handlers": ["console"], "propagate": False},
+        # "": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
+        "django": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
+        "temba": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
+        "django.template.base": {"level": "CRITICAL", "handlers": ["null"], "propagate": False},
+    },
+}
