@@ -5,6 +5,7 @@ import logging.config
 from click import echo
 
 import datagen
+from datagen.utils import permute_email
 
 LOGGING = {
     "version": 1,
@@ -57,20 +58,38 @@ def zap(ctx, **kwargs):
 @click.option('--verbosity', type=int, default=1)
 @click.option('-o', '--organization', type=int, default=1)
 @click.option('-c', '--channels', type=int, default=1)
+@click.option('-e', '--base-email', default='sapostolico@gmail.com')
 @click.pass_context
-def db(ctx, organization, channels, verbosity, **kwargs):
+def db(ctx, organization, channels, verbosity, base_email, **kwargs):
     from datagen import factories
     from datagen.models import auth, orgs
-    superuser = factories.UserFactory(username='admin',
-                                      email='admin@admin.org',
+    from django.conf import settings
+
+    superuser = factories.UserFactory(username='superuser',
+                                      email='superuser@superuser.org',
                                       is_superuser=True,
                                       is_staff=True)
 
+    admin = factories.UserFactory(username='admin',
+                                  email='admin@admin.org',
+                                  is_superuser=False,
+                                  is_staff=False)
+
+    factories.UserFactory(username=settings.ANONYMOUS_USER_NAME)
+
+    base_emails = base_email.split(',')
     channel = factories.ChannelFactory()
     o = channel.org
-    o.administrators.add(superuser)
+    o.administrators.add(admin)
     for g in o.all_groups.all():
-        g.contacts.add(factories.ContactFactory(org=o))
+        for email in permute_email(*base_emails):
+            c = factories.ContactFactory(org=o)
+            g.contacts.add(c)
+            factories.ContactURNFactory(contact=c,
+                                        org=o,
+                                        scheme='mailto',
+                                        identity='mailto:%s' % email,
+                                        path=email)
 
     if verbosity > 2:
         echo('ORGANIZATIONS:')
@@ -86,7 +105,7 @@ def db(ctx, organization, channels, verbosity, **kwargs):
 
             echo('  Contacts:')
             for a in o.org_contacts.all():
-                echo(f'    {a.name}')
+                echo(f'    {a.name} {a.email}')
     elif verbosity > 1:
         echo(f'ORGANIZATION: {o}')
         for a in o.administrators.all():
