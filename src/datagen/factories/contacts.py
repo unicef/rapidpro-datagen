@@ -1,6 +1,6 @@
 import factory
 
-from datagen.factories import OrgFactory
+# from datagen.factories import OrgFactory
 from datagen.factories.common import TembaModelFactory
 
 from ..models import channels, contacts
@@ -10,7 +10,7 @@ class ContactGroupFactory(TembaModelFactory):
     name = factory.Sequence(lambda o: "ContactGroup-%s" % o)
     group_type = contacts.ContactGroup.TYPE_ALL
     status = contacts.ContactGroup.STATUS_READY
-    org = factory.SubFactory(OrgFactory)
+    # org = factory.SubFactory(OrgFactory)
 
     class Meta:
         model = contacts.ContactGroup
@@ -20,7 +20,7 @@ class ContactGroupFactory(TembaModelFactory):
 class ContactFactory(TembaModelFactory):
     # name = factory.Sequence(lambda instance: "Contact-%s" % instance)
     name = factory.Faker('name')
-    org = factory.SubFactory(OrgFactory)
+    # org = factory.SubFactory(OrgFactory)
     is_blocked = False
     is_test = False
 
@@ -44,7 +44,7 @@ class ContactFactory(TembaModelFactory):
 
 class ContactURNFactory(factory.DjangoModelFactory):
     contact = factory.SubFactory(ContactFactory)
-    org = factory.SubFactory(OrgFactory)
+    # org = factory.SubFactory(OrgFactory)
     channel = factory.LazyAttribute(
         lambda o: channels.Channel.objects.order_by('?').first())
 

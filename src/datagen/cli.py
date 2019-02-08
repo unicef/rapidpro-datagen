@@ -1,10 +1,13 @@
+import random
 from contextlib import contextmanager
 from time import time
 
 import click
 from click import echo
+from django.db.models import Max
 
 import datagen
+from datagen.state import state
 
 LOGGING = {
     "version": 1,
@@ -58,6 +61,7 @@ def erase_all(ctx, **kwargs):
 @click.option('--atomic', is_flag=True, envvar='ATOMIC_TRANSACTIONS', help="Use single transaction")
 @click.option('--append', is_flag=True)
 @click.option('--profile', type=click.File())
+@click.option('--seed', type=int, default=1)
 @click.option('--organizations', type=int, default=1, help='Number od Organizations to create')
 @click.option('--channels', 'channel_num', type=int, default=1, help='Minimum number of Channels to create')
 @click.option('--contacts', 'contact_num', type=int, default=1, help='Minimum number of Contacts to create')
@@ -80,10 +84,10 @@ def erase_all(ctx, **kwargs):
               help='System superuser email')
 @click.pass_context
 def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts, flow_num,
-       verbosity, zap, atomic, base_email, append,
+       verbosity, zap, atomic, base_email, append, seed,
        admin_email, superuser_email, **kwargs):
     from datagen import factories
-    from datagen.models import orgs, auth
+    from datagen.models import orgs, auth, msgs
     from django.conf import settings
     import datagen.providers  # noqa
     if zap:
@@ -94,6 +98,10 @@ def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts, fl
         _atomic = contextmanager(lambda: True)
 
     start = time()
+    if append:
+        state.seed = 1 + msgs.Broadcast.objects.all().aggregate(seed=Max('id'))['seed']
+    else:
+        state.seed = seed
 
     with _atomic():
         factories.UserFactory(username='superuser',
@@ -121,7 +129,7 @@ def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts, fl
                                                     org=o)
 
             factories.FlowFactory.create_batch(flow_num,
-                                                  org=o)
+                                               org=o)
             # factories.ArchiveFactory.create_batch(archive_num,
             #                                       org=o)
 
@@ -130,6 +138,7 @@ def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts, fl
     click.echo("Execution time: %.3f secs" % duration)
 
     if verbosity > 1:
+        echo('seed: %s' % state.seed)
         echo('Users: %s' % auth.User.objects.count())
         echo('Organizations: %s' % orgs.Org.objects.count())
         for o in orgs.Org.objects.all():
@@ -138,6 +147,7 @@ def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts, fl
             echo('  Groups: %s' % o.all_groups.count())
             echo('  Contacts: %s' % o.org_contacts.count())
             echo('  Broadcasts: %s' % o.broadcast_set.count())
+            echo('  Flows: %s' % o.flows.count())
 
 
 def main():  # pragma: no cover

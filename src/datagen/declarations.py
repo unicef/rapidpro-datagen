@@ -53,8 +53,8 @@ class ChannelType(OrderedDeclaration):
 
 
 
-class RandomUser(OrderedDeclaration):
+class RandomUser(RandomRecord):
 
     def __init__(self) -> None:
         from django.contrib.auth.models import User
-        self.queryset = User.objects.all
+        self.queryset = User.objects
