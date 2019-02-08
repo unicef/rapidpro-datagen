@@ -50,3 +50,11 @@ class ChannelType(OrderedDeclaration):
 
     def evaluate(self, instance, step, extra):
         return random.choice(self.choices)
+
+
+
+class RandomUser(OrderedDeclaration):
+
+    def __init__(self) -> None:
+        from django.contrib.auth.models import User
+        self.queryset = User.objects.all

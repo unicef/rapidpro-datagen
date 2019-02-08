@@ -2,8 +2,8 @@ import factory
 from django.conf import settings
 from timezone_field import TimeZoneField
 
-from ..models import orgs, contacts
 from ..declarations import Choice
+from ..models import contacts, orgs
 from .auth import UserFactory
 from .common import SmartModelFactory
 from .locations import AdminBoundaryFactory

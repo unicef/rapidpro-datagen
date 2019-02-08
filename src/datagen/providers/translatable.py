@@ -1,7 +1,6 @@
 import factory
-from faker.providers import BaseProvider
-
 from faker import Faker
+from faker.providers import BaseProvider
 
 fake = Faker()
 

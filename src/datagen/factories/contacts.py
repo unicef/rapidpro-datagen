@@ -3,7 +3,7 @@ import factory
 from datagen.factories import OrgFactory
 from datagen.factories.common import TembaModelFactory
 
-from ..models import contacts, channels
+from ..models import channels, contacts
 
 
 class ContactGroupFactory(TembaModelFactory):

@@ -1,16 +1,17 @@
-import random
-
 import factory
 
+from datagen.declarations import RandomRecord
 from datagen.factories.common import SmartModelFactory
+from datagen.models import channels, contacts, msgs
+
 from .schedules import ScheduleFactory
-from datagen.models import msgs, channels, contacts
 
 
 class BroadcastFactory(SmartModelFactory):
     # org = factory.SubFactory(OrgFactory)
     text = factory.Faker('translatable')
-    channel = factory.LazyAttribute( lambda o: channels.Channel.objects.order_by('?').first())
+    channel = RandomRecord(channels.Channel.objects)
+    # channel = factory.LazyAttribute(lambda o: channels.Channel.objects.order_by('?').first())
     schedule = factory.SubFactory(ScheduleFactory)
 
     class Meta:

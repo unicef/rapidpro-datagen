@@ -1,8 +1,8 @@
 import factory
 from factory.faker import faker
 
-from ..models import locations
 from ..declarations import LocationName
+from ..models import locations
 
 FAKE = faker.Faker()
 
