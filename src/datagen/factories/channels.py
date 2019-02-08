@@ -1,16 +1,17 @@
 import factory
 
-from datagen.declarations import CountryFaker, ChannelType
 from temba.channels.types import TYPES
-from .org import OrgFactory
+
+from ..declarations import ChannelType, CountryFaker
 from ..models import channels
 from .common import TembaModelFactory
+from .org import OrgFactory
 
 
 class ChannelFactory(TembaModelFactory):
     country = CountryFaker()
     channel_type = ChannelType()
-    name = factory.LazyAttribute(lambda o: TYPES[o.channel_type])
+    name = factory.LazyAttribute(lambda instance: TYPES[instance.channel_type])
     # address =
     org = factory.SubFactory(OrgFactory)
     # gcm_id =
@@ -20,3 +21,4 @@ class ChannelFactory(TembaModelFactory):
 
     class Meta:
         model = channels.Channel
+        django_get_or_create = ('org', 'channel_type')

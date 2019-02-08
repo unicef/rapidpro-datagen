@@ -20,7 +20,7 @@ class OrgFactory(SmartModelFactory):
     timezone = Choice(TimeZoneField.CHOICES)
     languages = factory.RelatedFactory(LanguageFactory, 'org')
     country = factory.SubFactory(AdminBoundaryFactory)
-    slug = factory.LazyAttribute(lambda o: orgs.Org.get_unique_slug(o.name))
+    slug = factory.LazyAttribute(lambda instance: orgs.Org.get_unique_slug(instance.name))
     brand = settings.DEFAULT_BRAND
 
     # all_groups = factory.RelatedFactory(ContactGroupFactory,
@@ -35,31 +35,13 @@ class OrgFactory(SmartModelFactory):
 
     @factory.post_generation
     def others(self, create, extracted, **kwargs):
-        from datagen.factories.contacts import ContactGroupFactory, ContactFactory
+        from datagen.factories.contacts import ContactGroupFactory
 
         if not create:
-            # Simple build, do nothing.
             return
-
-        # self.slug = orgs.Org.get_unique_slug(self.name)
-        # self.primary_language = LanguageFactory(org=self)
         self.editors.add(UserFactory())
         self.administrators.add(UserFactory())
-        self.viewers.add(UserFactory())
-        self.surveyors.add(UserFactory())
-        type_all = ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_ALL, org=self)
-        type_blocked = ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_BLOCKED, org=self)
-        type_stopped = ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_STOPPED, org=self)
-        type_ud = ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_USER_DEFINED, org=self)
-
-        # c = ContactFactory(org=self)
-
-        # self.org_contacts.add(c)
-
-        # self.all_groups.add(ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_BLOCKED))
-        # self.all_groups.add(ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_STOPPED))
-        # self.all_groups.add(ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_USER_DEFINED))
-        # self.all_groups.add(ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_ALL,
-        #                                         contacts=[c]
-        #                                         ))
-
+        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_ALL, org=self)
+        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_BLOCKED, org=self)
+        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_STOPPED, org=self)
+        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_USER_DEFINED, org=self)

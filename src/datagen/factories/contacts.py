@@ -1,8 +1,9 @@
 import factory
 
-from datagen.factories import OrgFactory, ChannelFactory
+from datagen.factories import OrgFactory
 from datagen.factories.common import TembaModelFactory
-from datagen.models import contacts
+
+from ..models import contacts, channels
 
 
 class ContactGroupFactory(TembaModelFactory):
@@ -15,20 +16,11 @@ class ContactGroupFactory(TembaModelFactory):
         model = contacts.ContactGroup
         django_get_or_create = ('org', 'name',)
 
-    @factory.post_generation
-    def others(self, create, extracted, **kwargs):
-        if not create:
-            # Simple build, do nothing.
-            return
-        # contacts = extracted.pop('contacts', None)
-        # TODO: remove me
-        # print(111, "contacts.py:24", 11111, contacts)
-
 
 class ContactFactory(TembaModelFactory):
-    name = factory.Sequence(lambda o: "Contact-%s" % o)
+    # name = factory.Sequence(lambda instance: "Contact-%s" % instance)
+    name = factory.Faker('name')
     org = factory.SubFactory(OrgFactory)
-
     is_blocked = False
     is_test = False
 
@@ -36,12 +28,30 @@ class ContactFactory(TembaModelFactory):
         model = contacts.Contact
         django_get_or_create = ('org', 'name',)
 
+    @classmethod
+    def _after_postgeneration(cls, instance, create, results=None):
+        """Save again the instance if creating and at least one hook ran."""
+        if create and results:
+            # Some post-generation hooks ran, and may have modified us.
+            instance.save(update_fields=None, handle_update=False)
+
+    @factory.post_generation
+    def m2m(self, create, extracted, **kwargs):
+        if not create:
+            return
+        ContactURNFactory(contact=self, org=self.org)
+
 
 class ContactURNFactory(factory.DjangoModelFactory):
     contact = factory.SubFactory(ContactFactory)
     org = factory.SubFactory(OrgFactory)
-    channel = factory.SubFactory(ChannelFactory)
+    channel = factory.LazyAttribute(
+        lambda o: channels.Channel.objects.order_by('?').first())
+
     priority = contacts.ContactURN.PRIORITY_STANDARD
+    scheme = 'mailto'
+    path = factory.Faker('email')
+    identity = factory.LazyAttribute(lambda o: 'mailto:%s' % o.path)
 
     class Meta:
         model = contacts.ContactURN

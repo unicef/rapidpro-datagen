@@ -1,11 +1,13 @@
+from contextlib import contextmanager
+from time import time
+
 import click
-import logging
-import logging.config
 
 from click import echo
 
 import datagen
-from datagen.utils import permute_email
+from datagen.state import state
+from datagen.utils import disable_triggers
 
 LOGGING = {
     "version": 1,
@@ -33,12 +35,11 @@ LOGGING = {
 def cli(ctx, **kwargs):
     import django
     django.setup()
-    logging.config.dictConfig(LOGGING)
 
 
-@cli.command()
+@cli.command('zap')
 @click.pass_context
-def zap(ctx, **kwargs):
+def erase_all(ctx, **kwargs):
     from .models import orgs, locations, auth, channels
     from django.db import connections
 
@@ -55,69 +56,86 @@ def zap(ctx, **kwargs):
 
 
 @cli.command()
-@click.option('--verbosity', type=int, default=1)
-@click.option('-o', '--organization', type=int, default=1)
-@click.option('-c', '--channels', type=int, default=1)
-@click.option('-e', '--base-email', default='sapostolico@gmail.com')
+@click.option('-v', '--verbosity', type=int, default=1)
+@click.option('--zap', is_flag=True, help="Erase all data first")
+@click.option('--atomic', is_flag=True, envvar='ATOMIC_TRANSACTIONS', help="Use single transaction")
+@click.option('--append', is_flag=True)
+@click.option('--profile', type=click.File())
+@click.option('--organizations', type=int, default=1, help='Number od Organizations to create')
+@click.option('--channels', 'channel_num', type=int, default=1, help='Minimum number of Channels to create')
+@click.option('--contacts', 'contact_num', type=int, default=1, help='Minimum number of Contacts to create')
+@click.option('--archives', 'archives_num', type=int, default=1, help='Minimum number of Archive to create')
+@click.option('--broadcasts', type=int, default=100, help='Minimum number of Broadcasts to create')
+@click.option('--base-email',
+              metavar='EMAIL',
+              envvar='BASE_EMAIL',
+              help='Base GMail addres to use for email generation')
+@click.option('--admin-email',
+              metavar='EMAIL',
+              envvar='ADMIN_EMAIL',
+              default='admin@admin.org',
+              help='Alll Organizanizations admin\'s email')
+@click.option('--superuser-email',
+              metavar='EMAIL',
+              envvar='SUPERUSER_EMAIL',
+              default='superuser@superuser.org',
+              help='System superuser email')
 @click.pass_context
-def db(ctx, organization, channels, verbosity, base_email, **kwargs):
+def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts,
+       verbosity, zap, atomic, base_email, append,
+       admin_email, superuser_email, **kwargs):
     from datagen import factories
-    from datagen.models import auth, orgs
+    from datagen.models import orgs, schedules, contacts, channels, archives
     from django.conf import settings
+    import datagen.providers  # noqa
+    if zap:
+        ctx.invoke(erase_all)
+    if atomic:
+        from django.db.transaction import atomic as _atomic
+    else:
+        _atomic = contextmanager(lambda: True)
 
-    superuser = factories.UserFactory(username='superuser',
-                                      email='superuser@superuser.org',
-                                      is_superuser=True,
-                                      is_staff=True)
+    start = time()
 
-    admin = factories.UserFactory(username='admin',
-                                  email='admin@admin.org',
-                                  is_superuser=False,
-                                  is_staff=False)
+    with _atomic():
+        factories.UserFactory(username='superuser',
+                              email=admin_email,
+                              is_superuser=True,
+                              is_staff=True)
 
-    factories.UserFactory(username=settings.ANONYMOUS_USER_NAME)
+        admin = factories.UserFactory(username='admin',
+                                      email=superuser_email,
+                                      is_superuser=False,
+                                      is_staff=False)
 
-    base_emails = base_email.split(',')
-    channel = factories.ChannelFactory()
-    o = channel.org
-    o.administrators.add(admin)
-    for g in o.all_groups.all():
-        for email in permute_email(*base_emails):
-            c = factories.ContactFactory(org=o)
-            g.contacts.add(c)
-            factories.ContactURNFactory(contact=c,
-                                        org=o,
-                                        scheme='mailto',
-                                        identity='mailto:%s' % email,
-                                        path=email)
+        factories.UserFactory(username=settings.ANONYMOUS_USER_NAME)
+        if not append:
+            factories.OrgFactory.create_batch(organizations)
+            echo(f'Created #{organizations} Organizations')
 
-    if verbosity > 2:
-        echo('ORGANIZATIONS:')
         for o in orgs.Org.objects.all():
-            echo(f'{o.name}')
-            echo('  Administrators:')
-            for a in o.administrators.all():
-                echo(f'    {a.username} {a.email}')
+            o.administrators.add(admin)
+            factories.ChannelFactory.create_batch(channel_num, org=o)
+            factories.ContactFactory.create_batch(contact_num,
+                                                  org=o)
+            factories.BroadcastFactory.create_batch(broadcasts,
+                                                    org=o)
 
-            echo('  Groups:')
-            for a in o.all_groups.all():
-                echo(f'    {a.name} {a.group_type}')
+            factories.ArchiveFactory.create_batch(archive_num,
+                                                  org=o)
 
-            echo('  Contacts:')
-            for a in o.org_contacts.all():
-                echo(f'    {a.name} {a.email}')
-    elif verbosity > 1:
-        echo(f'ORGANIZATION: {o}')
-        for a in o.administrators.all():
-            echo(f'    {a.username} {a.email}')
+    stop = time()
+    duration = stop - start
+    click.echo("Execution time: %.3f secs" % duration)
 
-        echo('  Groups:')
-        for a in o.all_groups.all():
-            echo(f'    {a.name} {a.group_type}')
+    if verbosity > 1:
+        for o in orgs.Org.objects.all():
+            echo(f'Organization: "{o.name}"')
+            echo('  Administrators: %s' % o.administrators.count())
+            echo('  Groups: %s' % o.all_groups.count())
+            echo('  Contacts: %s' % o.org_contacts.count())
+            echo('  Broadcasts: %s' % o.broadcast_set.count())
 
-        echo('  Contacts:')
-        for a in o.org_contacts.all():
-            echo(f'    {a.name}')
 
 
 def main():  # pragma: no cover

@@ -1,3 +1,8 @@
+from contextlib import contextmanager
+
+from django.db import connection
+
+
 def permute_email(*emails):
     for base in emails:
         address, domain = base.split('@')
@@ -6,3 +11,11 @@ def permute_email(*emails):
             a.insert(i, '.')
             yield f'{"".join(a)}@{domain}'
 
+
+@contextmanager
+def disable_triggers():
+    with connection.cursor() as cursor:
+        cursor.execute("SET session_replication_role TO 'replica';")
+    yield
+    with connection.cursor() as cursor:
+        cursor.execute("SET session_replication_role TO 'origin'")

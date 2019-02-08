@@ -32,6 +32,8 @@ setup(name=name,
       install_requires=['click'],
       packages=find_packages('src'),
       include_package_data=True,
+      extras_require={'test': ['factory-boy==2.11.1'],
+                      },
       entry_points={
           'console_scripts': [
               'generate = datagen.cli:main',

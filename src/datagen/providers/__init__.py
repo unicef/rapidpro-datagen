@@ -1,2 +1,2 @@
 # flake8: noqa
-from . import language
+from . import translatable
