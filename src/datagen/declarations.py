@@ -1,6 +1,7 @@
 import random
 
 import factory
+from django.utils.functional import cached_property
 from django_countries import countries
 from factory.declarations import OrderedDeclaration
 
@@ -33,8 +34,12 @@ class RandomRecord(OrderedDeclaration):
     def __init__(self, queryset) -> None:
         self.queryset = queryset
 
+    @cached_property
+    def data(self):
+        return self.queryset.all()
+
     def evaluate(self, instance, step, extra):
-        return random.choice(self.queryset.all())
+        return random.choice(self.data)
 
 
 class ChannelType(OrderedDeclaration):

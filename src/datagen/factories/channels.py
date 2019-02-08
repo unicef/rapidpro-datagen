@@ -8,6 +8,11 @@ from .common import TembaModelFactory
 from .org import OrgFactory
 
 
+class ChannelSessionFactory(TembaModelFactory):
+    class Meta:
+        model = channels.ChannelSession
+
+
 class ChannelFactory(TembaModelFactory):
     country = CountryFaker()
     channel_type = ChannelType()

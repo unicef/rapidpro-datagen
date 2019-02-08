@@ -64,7 +64,7 @@ def erase_all(ctx, **kwargs):
 @click.option('--organizations', type=int, default=1, help='Number od Organizations to create')
 @click.option('--channels', 'channel_num', type=int, default=1, help='Minimum number of Channels to create')
 @click.option('--contacts', 'contact_num', type=int, default=1, help='Minimum number of Contacts to create')
-@click.option('--archives', 'archives_num', type=int, default=1, help='Minimum number of Archive to create')
+@click.option('--archives', 'archive_num', type=int, default=1, help='Minimum number of Archive to create')
 @click.option('--broadcasts', type=int, default=100, help='Minimum number of Broadcasts to create')
 @click.option('--base-email',
               metavar='EMAIL',
@@ -121,8 +121,8 @@ def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts,
             factories.BroadcastFactory.create_batch(broadcasts,
                                                     org=o)
 
-            factories.ArchiveFactory.create_batch(archive_num,
-                                                  org=o)
+            # factories.ArchiveFactory.create_batch(archive_num,
+            #                                       org=o)
 
     stop = time()
     duration = stop - start

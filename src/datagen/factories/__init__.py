@@ -2,7 +2,7 @@
 from .auth import UserFactory
 from .locations import AdminBoundaryFactory
 from .org import LanguageFactory, OrgFactory
-from .channels import ChannelFactory
+from .channels import ChannelFactory, ChannelSessionFactory
 from .contacts import ContactFactory, ContactGroupFactory,ContactURNFactory
 from .msgs import BroadcastFactory
 from .schedules import ScheduleFactory
