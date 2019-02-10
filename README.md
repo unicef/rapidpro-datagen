@@ -31,13 +31,46 @@ Clone the repo and setup the virtualenv
     $ make develop
     $ pipenv shell
     
-
+ 
+## HELP
+    $ generate --help
+    Usage: RapidPro Data Generator [OPTIONS] COMMAND [ARGS]...
     
-## Use
-
-    $ generate db
-
-
+    Options:
+      --version  Show the version and exit.
+      --help     Show this message and exit.
+    
+    Commands:
+      db      generate data
+      status  display database numbers
+      zap     empty database
+      
+### db
+    $ generate db --help
+    Usage: RapidPro Data Generator db [OPTIONS]
+    
+      generate data
+    
+    Options:
+      -v, --verbosity INTEGER
+      --zap                    Erase all data first
+      --atomic                 Use single transaction
+      --append                 do not create new organizations. Append new data to existing
+      --processes INTEGER      number of processes to use
+      --seed INTEGER           initial pk value for numbers
+      --organizations INTEGER  Number od Organizations to create
+      --channels INTEGER       Minimum number of Channels to create
+      --contacts INTEGER       Minimum number of Contacts to create
+      --archives INTEGER       Minimum number of Archive to create
+      --flows INTEGER          Minimum number of Flow to create
+      --broadcasts INTEGER     Minimum number of Broadcasts to create
+      --base-email EMAIL       Base GMail addres to use for email generation
+      --admin-email EMAIL      Alll Organizanizations admin's email
+      --superuser-email EMAIL  System superuser email
+      --help                   Show this message and exit.   
+      
+      
+       
 ## Note
 
 Following users will be always available to interact with RapidPRO
