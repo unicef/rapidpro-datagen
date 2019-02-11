@@ -85,8 +85,8 @@ def erase_all(ctx, **kwargs):
 @click.option('--zap', is_flag=True, help="Erase all data first")
 @click.option('--atomic', is_flag=True, envvar='ATOMIC_TRANSACTIONS',
               help="Use single transaction. Do not use for large dataset  (>~500.000")
-@click.option('-a', '--append', is_flag=True,
-              help="do not create new organizations. Append new data to existing")
+@click.option('--create/--append', is_flag=True,
+              help="Create new organizations or append new data to existing")
 @click.option('-p', '--processes', type=int, default=int(multiprocessing.cpu_count() / 2),
               help="number of processes to use")
 @click.option('--seed', type=int, default=1, help="initial pk value for numbers")
@@ -116,12 +116,12 @@ def erase_all(ctx, **kwargs):
               help='Minimum number of Archives to create')
 @click.pass_context
 def db(ctx, organizations, user_num, channel_num, contact_num, archive_num, broadcast_num, flow_num,
-       verbosity, zap, atomic, base_email, append, seed, processes,
+       verbosity, zap, atomic, base_email, create, seed, processes,
        admin_email, superuser_email, **kwargs):
     """ generate data """
     from datagen.models import msgs
     from datagen import factories
-
+    append = not create
     if zap:
         ctx.invoke(erase_all)
 

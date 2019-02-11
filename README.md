@@ -47,6 +47,7 @@ Clone the repo and setup the virtualenv
       
 ### db
     $ generate db --help
+    Database: perf://postgres:@127.0.0.1:5432/rapidpro
     Usage: RapidPro Data Generator db [OPTIONS]
     
       generate data
@@ -54,21 +55,22 @@ Clone the repo and setup the virtualenv
     Options:
       -v, --verbosity INTEGER
       --zap                    Erase all data first
-      --atomic                 Use single transaction
-      --append                 do not create new organizations. Append new data to existing
-      --processes INTEGER      number of processes to use
+      --atomic                 Use single transaction. Do not use for large dataset  (>~500.000
+      --create / --append      Create new organizations or append new data to existing
+      -p, --processes INTEGER  number of processes to use
       --seed INTEGER           initial pk value for numbers
+      --base-email EMAIL       Base GMail addres to use for email generation
+      --admin-email EMAIL      Alll Organizanizations admin's email
+      --superuser-email EMAIL  System superuser email
+      --users INTEGER          Number od Users to create
       --organizations INTEGER  Number od Organizations to create
       --channels INTEGER       Minimum number of Channels to create
       --contacts INTEGER       Minimum number of Contacts to create
       --archives INTEGER       Minimum number of Archive to create
       --flows INTEGER          Minimum number of Flow to create
       --broadcasts INTEGER     Minimum number of Broadcasts to create
-      --base-email EMAIL       Base GMail addres to use for email generation
-      --admin-email EMAIL      Alll Organizanizations admin's email
-      --superuser-email EMAIL  System superuser email
-      --help                   Show this message and exit.   
-      
+      --archives INTEGER       Minimum number of Archives to create
+      --help                   Show this message and exit.
       
        
 ## Note
