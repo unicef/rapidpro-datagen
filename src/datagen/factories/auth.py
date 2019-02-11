@@ -10,6 +10,8 @@ class UserFactory(factory.DjangoModelFactory):
     last_name = factory.Faker('last_name')
     email = factory.Faker('email')
     password = factory.PostGenerationMethodCall('set_password', '123')
+    is_superuser = False
+    is_staff = False
 
     class Meta:
         model = auth.User

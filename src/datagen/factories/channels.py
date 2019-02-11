@@ -1,3 +1,5 @@
+import uuid
+
 import factory
 
 from temba.channels.types import TYPES
@@ -21,7 +23,7 @@ class ChannelFactory(TembaModelFactory):
     org = factory.SubFactory(OrgFactory)
     # gcm_id =
     # claim_code=
-    secret = factory.Faker('password')
+    secret = factory.LazyAttribute(lambda instance: uuid.uuid4().hex+uuid.uuid4().hex)
     alert_email = factory.Faker('email')
 
     class Meta:

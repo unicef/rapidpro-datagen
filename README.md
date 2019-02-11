@@ -77,3 +77,6 @@ Following users will be always available to interact with RapidPRO
     
 - One system superuser `superuser` (password `123`) 
 - One "all organizations" admin `admin` (password `123`)
+
+- Multiprocessing does not work on some platform, due postgres `libpq` issues. 
+Use `--processes=1` if any problem 

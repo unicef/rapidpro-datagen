@@ -41,7 +41,11 @@ class OrgFactory(SmartModelFactory):
             return
         self.editors.add(UserFactory())
         self.administrators.add(UserFactory())
-        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_ALL, org=self)
-        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_BLOCKED, org=self)
-        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_STOPPED, org=self)
+        ContactGroupFactory(name="ContactGroup-ALL",
+                            group_type=contacts.ContactGroup.TYPE_ALL, org=self)
+        ContactGroupFactory(name="ContactGroup-BLOCKED",
+                            group_type=contacts.ContactGroup.TYPE_BLOCKED, org=self)
+        ContactGroupFactory(name="ContactGroup-STOPPED",
+                            group_type=contacts.ContactGroup.TYPE_STOPPED, org=self)
+        ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_USER_DEFINED, org=self)
         ContactGroupFactory(group_type=contacts.ContactGroup.TYPE_USER_DEFINED, org=self)

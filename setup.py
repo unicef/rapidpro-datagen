@@ -29,10 +29,10 @@ setup(name=name,
       author_email='s.apostolico@gmail.com',
       url='https://github.com/unicef/rapidpro-datagen',
       package_dir={'': 'src'},
-      install_requires=['click'],
+      install_requires=['click', 'colorama', 'factory-boy==2.11.1', 'django-environ'],
       packages=find_packages('src'),
       include_package_data=True,
-      extras_require={'test': ['factory-boy==2.11.1'],
+      extras_require={'test': [],
                       },
       entry_points={
           'console_scripts': [

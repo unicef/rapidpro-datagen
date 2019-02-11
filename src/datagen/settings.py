@@ -8,6 +8,7 @@
 #     - a redis instance listening on localhost
 # -----------------------------------------------------------------------------------
 import copy
+import psycopg2.extensions
 import warnings
 
 from temba.settings_common import *  # noqa
@@ -16,17 +17,23 @@ SECRET_KEY = 'klj;kljhlkjhlkjhlkjh'
 
 DEBUG_TOOLBAR = True
 DEBUG = True
-DATABASES = {'default': {"ENGINE": "django.contrib.gis.db.backends.postgis",
-                         "NAME": "rapidpro",
-                         "USER": "postgres",
-                         "PASSWORD": "",
-                         "HOST": "localhost",
-                         "PORT": "5432",
-                         "ATOMIC_REQUESTS": True,
-                         "CONN_MAX_AGE": 60,
-                         "OPTIONS": {},
-                         }
-             }
+from environ import Env
+
+env = Env()
+env.DB_SCHEMES['perf'] = 'datagen.db'
+DATABASES = {'default': env.db()}
+
+# DATABASES = {'default': {"ENGINE": "django.contrib.gis.db.backends.postgis",
+#                          "NAME": "rapidpro",
+#                          "USER": "postgres",
+#                          "PASSWORD": "",
+#                          "HOST": "localhost",
+#                          "PORT": "5432",
+#                          "ATOMIC_REQUESTS": True,
+#                          "CONN_MAX_AGE": 60,
+#                          "OPTIONS": {},
+#                          }
+#              }
 
 # -----------------------------------------------------------------------------------
 # Add a custom brand for development

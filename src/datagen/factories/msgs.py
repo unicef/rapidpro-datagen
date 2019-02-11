@@ -23,6 +23,7 @@ class BroadcastFactory(SmartModelFactory):
     # channel = factory.LazyAttribute(lambda o: channels.Channel.objects.order_by('?').first())
     # schedule = factory.SubFactory(ScheduleFactory)
     schedule = factory.LazyAttribute(lambda o: ScheduleFactory(id=o.id))
+    base_language = 'en'
 
     class Meta:
         model = msgs.Broadcast

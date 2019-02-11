@@ -40,18 +40,25 @@ class ContactFactory(TembaModelFactory):
         if not create:
             return
         ContactURNFactory(contact=self, org=self.org)
+        from ..models import contacts
+        g = ContactGroupFactory(name='ContactGroup-0', org=self.org,
+                                group_type=contacts.ContactGroup.TYPE_USER_DEFINED)
+        g.contacts.add(self)
+        self.org.all_groups.filter().first().contacts.add(self)
 
 
 class ContactURNFactory(factory.DjangoModelFactory):
     contact = factory.SubFactory(ContactFactory)
-    # org = factory.SubFactory(OrgFactory)
     channel = factory.LazyAttribute(
         lambda o: channels.Channel.objects.order_by('?').first())
 
     priority = contacts.ContactURN.PRIORITY_STANDARD
-    scheme = 'mailto'
-    path = factory.Faker('email')
-    identity = factory.LazyAttribute(lambda o: 'mailto:%s' % o.path)
+    # scheme = 'mailto'
+    # path = factory.Faker('email')
+    # identity = factory.LazyAttribute(lambda o: 'mailto:%s' % o.path)
+    scheme = 'tel'
+    path = factory.Faker('phone_number')
+    identity = factory.LazyAttribute(lambda o: 'tel:%s' % o.path)
 
     class Meta:
         model = contacts.ContactURN

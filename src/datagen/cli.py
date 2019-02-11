@@ -1,13 +1,16 @@
-import random
-from contextlib import contextmanager
+import math
+import multiprocessing
+import os
 from time import time
 
 import click
-from click import echo
 from django.db.models import Max
 
 import datagen
-from datagen.state import state
+
+from .generator import execute
+from .out import echo, warn
+from .utils import delta, now
 
 LOGGING = {
     "version": 1,
@@ -33,13 +36,35 @@ LOGGING = {
 @click.version_option(version=datagen.VERSION)
 @click.pass_context
 def cli(ctx, **kwargs):
+    echo('Database: %s' % os.environ['DATABASE_URL'])
     import django
     django.setup()
+
+
+@cli.command()
+@click.pass_context
+def status(ctx, **kwargs):
+    """display database numbers """
+    from datagen.models import orgs, auth, msgs
+
+    from datagen.state import state
+    echo('Seed: %s' % state.seed)
+    echo('')
+    echo('Users: %s' % auth.User.objects.count())
+    echo('Organizations: %s' % orgs.Org.objects.count())
+    for o in orgs.Org.objects.all():
+        echo(f'Organization: "{o.name}"')
+        echo('  Administrators: %s' % o.administrators.count())
+        echo('  Groups: %s' % o.all_groups.count())
+        echo('  Contacts: %s' % o.org_contacts.count())
+        echo('  Broadcasts: %s' % o.broadcast_set.count())
+        echo('  Flows: %s' % o.flows.count())
 
 
 @cli.command('zap')
 @click.pass_context
 def erase_all(ctx, **kwargs):
+    """ empty database """
     from .models import orgs, locations, auth, channels
     from django.db import connections
 
@@ -58,96 +83,92 @@ def erase_all(ctx, **kwargs):
 @cli.command()
 @click.option('-v', '--verbosity', type=int, default=1)
 @click.option('--zap', is_flag=True, help="Erase all data first")
-@click.option('--atomic', is_flag=True, envvar='ATOMIC_TRANSACTIONS', help="Use single transaction")
-@click.option('--append', is_flag=True)
-@click.option('--profile', type=click.File())
-@click.option('--seed', type=int, default=1)
-@click.option('--organizations', type=int, default=1, help='Number od Organizations to create')
-@click.option('--channels', 'channel_num', type=int, default=1, help='Minimum number of Channels to create')
-@click.option('--contacts', 'contact_num', type=int, default=1, help='Minimum number of Contacts to create')
-@click.option('--archives', 'archive_num', type=int, default=1, help='Minimum number of Archive to create')
-@click.option('--flows', 'flow_num', type=int, default=1, help='Minimum number of Flow to create')
-@click.option('--broadcasts', type=int, default=100, help='Minimum number of Broadcasts to create')
-@click.option('--base-email',
-              metavar='EMAIL',
-              envvar='BASE_EMAIL',
+@click.option('--atomic', is_flag=True, envvar='ATOMIC_TRANSACTIONS',
+              help="Use single transaction. Do not use for large dataset  (>~500.000")
+@click.option('-a', '--append', is_flag=True,
+              help="do not create new organizations. Append new data to existing")
+@click.option('-p', '--processes', type=int, default=int(multiprocessing.cpu_count() / 2),
+              help="number of processes to use")
+@click.option('--seed', type=int, default=1, help="initial pk value for numbers")
+# Config
+@click.option('--base-email', metavar='EMAIL', envvar='BASE_EMAIL',
               help='Base GMail addres to use for email generation')
-@click.option('--admin-email',
-              metavar='EMAIL',
-              envvar='ADMIN_EMAIL',
-              default='admin@admin.org',
+@click.option('--admin-email', metavar='EMAIL', envvar='ADMIN_EMAIL', default='admin@admin.org',
               help='Alll Organizanizations admin\'s email')
-@click.option('--superuser-email',
-              metavar='EMAIL',
-              envvar='SUPERUSER_EMAIL',
-              default='superuser@superuser.org',
+@click.option('--superuser-email', metavar='EMAIL', envvar='SUPERUSER_EMAIL', default='superuser@superuser.org',
               help='System superuser email')
+# Numbers
+@click.option('--users', 'user_num', type=int, default=100,
+              help='Number od Users to create')
+@click.option('--organizations', type=int, default=1,
+              help='Number od Organizations to create')
+@click.option('--channels', 'channel_num', type=int, default=1,
+              help='Minimum number of Channels to create')
+@click.option('--contacts', 'contact_num', type=int, default=1000,
+              help='Minimum number of Contacts to create')
+@click.option('--archives', 'archive_num', type=int, default=1,
+              help='Minimum number of Archive to create')
+@click.option('--flows', 'flow_num', type=int, default=100,
+              help='Minimum number of Flow to create')
+@click.option('--broadcasts', 'broadcast_num', type=int, default=1000,
+              help='Minimum number of Broadcasts to create')
+@click.option('--archives', type=int, default=10,
+              help='Minimum number of Archives to create')
 @click.pass_context
-def db(ctx, organizations, channel_num, contact_num, archive_num, broadcasts, flow_num,
-       verbosity, zap, atomic, base_email, append, seed,
+def db(ctx, organizations, user_num, channel_num, contact_num, archive_num, broadcast_num, flow_num,
+       verbosity, zap, atomic, base_email, append, seed, processes,
        admin_email, superuser_email, **kwargs):
+    """ generate data """
+    from datagen.models import msgs
     from datagen import factories
-    from datagen.models import orgs, auth, msgs
-    from django.conf import settings
-    import datagen.providers  # noqa
+
     if zap:
         ctx.invoke(erase_all)
-    if atomic:
-        from django.db.transaction import atomic as _atomic
-    else:
-        _atomic = contextmanager(lambda: True)
 
     start = time()
     if append:
-        state.seed = 1 + msgs.Broadcast.objects.all().aggregate(seed=Max('id'))['seed']
+        try:
+            seed = 1 + msgs.Broadcast.objects.all().aggregate(seed=Max('id'))['seed']
+        except TypeError:
+            warn("No exisiting data. Ignoring '--append' flag")
+            append = False
+
+    echo("Start loading at %s " % now())
+
+    if not append:
+        echo("Creating Users")
+        factories.UserFactory.create_batch(user_num)
+        echo("Creating Organizations")
+        factories.OrgFactory.create_batch(organizations)
+
+    echo(f"Creating: {channel_num} Channels, {contact_num} contacts, "
+         f"{broadcast_num} broadcast, {flow_num} flows, {archive_num} archives")
+    echo("Processes # %s " % processes)
+    if processes > 1:
+        numbers = list(map(lambda x: math.ceil(x / processes), [channel_num, contact_num,
+                                                                 broadcast_num, flow_num,
+                                                                 archive_num]))
+
+        args = []
+        for p in range(processes):
+            args.append([((p+seed)*broadcast_num), atomic,
+                         append, admin_email, superuser_email] + numbers)
+        with multiprocessing.Pool(processes) as pool:
+            out = pool.starmap(execute, args)
+            echo(out)
     else:
-        state.seed = seed
-
-    with _atomic():
-        factories.UserFactory(username='superuser',
-                              email=admin_email,
-                              is_superuser=True,
-                              is_staff=True)
-
-        admin = factories.UserFactory(username='admin',
-                                      email=superuser_email,
-                                      is_superuser=False,
-                                      is_staff=False)
-
-        factories.UserFactory(username=settings.ANONYMOUS_USER_NAME)
-        if not append:
-            factories.UserFactory.create_batch(100)
-            factories.OrgFactory.create_batch(organizations)
-            echo(f'Created #{organizations} Organizations')
-
-        for o in orgs.Org.objects.all():
-            o.administrators.add(admin)
-            factories.ChannelFactory.create_batch(channel_num, org=o)
-            factories.ContactFactory.create_batch(contact_num,
-                                                  org=o)
-            factories.BroadcastFactory.create_batch(broadcasts,
-                                                    org=o)
-
-            factories.FlowFactory.create_batch(flow_num,
-                                               org=o)
-            # factories.ArchiveFactory.create_batch(archive_num,
-            #                                       org=o)
+        execute(seed, atomic, append, admin_email, superuser_email,
+                channel_num, contact_num, broadcast_num, flow_num, archive_num)
 
     stop = time()
     duration = stop - start
-    click.echo("Execution time: %.3f secs" % duration)
+    echo("End loading at %s " % now())
+    echo("Execution time: %s" % delta(duration))
 
     if verbosity > 1:
-        echo('seed: %s' % state.seed)
-        echo('Users: %s' % auth.User.objects.count())
-        echo('Organizations: %s' % orgs.Org.objects.count())
-        for o in orgs.Org.objects.all():
-            echo(f'Organization: "{o.name}"')
-            echo('  Administrators: %s' % o.administrators.count())
-            echo('  Groups: %s' % o.all_groups.count())
-            echo('  Contacts: %s' % o.org_contacts.count())
-            echo('  Broadcasts: %s' % o.broadcast_set.count())
-            echo('  Flows: %s' % o.flows.count())
+        from django.db import connection
+        connection.connect()
+        ctx.invoke(status)
 
 
 def main():  # pragma: no cover
