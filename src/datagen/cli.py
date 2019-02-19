@@ -130,20 +130,20 @@ def db(ctx, organizations, user_num, channel_num, contact_num, archive_num, broa
         try:
             seed = 1 + msgs.Broadcast.objects.all().aggregate(seed=Max('id'))['seed']
         except TypeError:
-            warn("No exisiting data. Ignoring '--append' flag")
+            warn("No existing data. Ignoring '--append' flag")
             append = False
 
     echo("Start loading at %s " % now())
 
     if not append:
-        echo("Creating Users")
+        echo(f"Creating #{user_num} Users")
         factories.UserFactory.create_batch(user_num)
-        echo("Creating Organizations")
+        echo(f"Creating #{organizations} Organizations")
         factories.OrgFactory.create_batch(organizations)
 
-    echo(f"Creating: {channel_num} Channels, {contact_num} contacts, "
-         f"{broadcast_num} broadcast, {flow_num} flows, {archive_num} archives")
-    echo("Processes # %s " % processes)
+    echo(f"Creating: #{channel_num} Channels, #{contact_num} contacts, "
+         f"#{broadcast_num} broadcast, #{flow_num} flows, #{archive_num} archives")
+    echo("Processes #%s " % processes)
     if processes > 1:
         numbers = list(map(lambda x: math.ceil(x / processes), [channel_num, contact_num,
                                                                  broadcast_num, flow_num,

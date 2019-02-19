@@ -10,8 +10,6 @@ from setuptools import find_packages, setup
 ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__)))
 init = os.path.join(ROOT, 'src', 'datagen', '__init__.py')
 
-rel = lambda *args: os.path.join(ROOT, 'src', 'requirements', *args)
-
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
 _name_re = re.compile(r'NAME\s+=\s+(.*)')
 
@@ -32,7 +30,7 @@ setup(name=name,
       install_requires=['click', 'colorama', 'factory-boy==2.11.1', 'django-environ'],
       packages=find_packages('src'),
       include_package_data=True,
-      extras_require={'test': [],
+      extras_require={'test': ['pdbpp'],
                       },
       entry_points={
           'console_scripts': [

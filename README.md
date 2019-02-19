@@ -27,11 +27,14 @@ Clone the repo and setup the virtualenv
 
     $ git clone https://github.com/unicef/rapidpro-datagen.git datagen
     $ cd datagen
-    $ pipenv shell
     $ make develop
     $ pipenv shell
     
- 
+## QUICKSTART
+
+    # generate db
+    
+     
 ## HELP
     $ generate --help
     Usage: RapidPro Data Generator [OPTIONS] COMMAND [ARGS]...

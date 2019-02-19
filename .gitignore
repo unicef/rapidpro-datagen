@@ -2,8 +2,6 @@
 .venv
 .envrc
 .DS_Store
-Pipfile
-Pipfile.lock
 rapidpro/temba/settings.py
 rapidpro/node_modules
 *.egg-info
