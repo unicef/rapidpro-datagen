@@ -27,6 +27,7 @@ Clone the repo and setup the virtualenv
 
     $ git clone https://github.com/unicef/rapidpro-datagen.git datagen
     $ cd datagen
+    $ git submodule update --init --recursive
     $ make develop
     $ pipenv shell
     
@@ -85,3 +86,16 @@ Following users will be always available to interact with RapidPRO
 
 - Multiprocessing does not work on some platform, due postgres `libpq` issues. 
 Use `--processes=1` if any problem 
+
+## Troubleshooting
+
+If you get errors installing requirements you may need to install `python-dev` for
+the required version of Python (3.6).
+
+On Ubuntu this can be done with:
+
+```
+sudo apt-get install python3.6-dev
+```
+
+More [info here](https://stackoverflow.com/a/22077790/8207).
