@@ -33,6 +33,7 @@ class RandomRecord(OrderedDeclaration):
 
     def __init__(self, queryset) -> None:
         self.queryset = queryset
+        # super().__init__(**kwargs)
 
     @cached_property
     def data(self):
@@ -44,17 +45,17 @@ class RandomRecord(OrderedDeclaration):
 
 class ChannelType(OrderedDeclaration):
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs):
         from temba.channels.types import TYPES
+        super().__init__(**kwargs)
         self.choices = list(TYPES.keys())
 
     def evaluate(self, instance, step, extra):
         return random.choice(self.choices)
 
 
-
 class RandomUser(RandomRecord):
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs):
         from django.contrib.auth.models import User
-        self.queryset = User.objects
+        super().__init__(User.objects)

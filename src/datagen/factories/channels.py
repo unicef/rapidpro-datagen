@@ -19,11 +19,11 @@ class ChannelFactory(TembaModelFactory):
     country = CountryFaker()
     channel_type = ChannelType()
     name = factory.LazyAttribute(lambda instance: TYPES[instance.channel_type])
-    # address =
     org = factory.SubFactory(OrgFactory)
+    # address =
     # gcm_id =
     # claim_code=
-    secret = factory.LazyAttribute(lambda instance: uuid.uuid4().hex+uuid.uuid4().hex)
+    secret = factory.LazyAttribute(lambda instance: uuid.uuid4().hex + uuid.uuid4().hex)
     alert_email = factory.Faker('email')
 
     class Meta:

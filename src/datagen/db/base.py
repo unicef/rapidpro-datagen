@@ -1,4 +1,5 @@
-from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper as PostgisDatabaseWrapper
+from django.contrib.gis.db.backends.postgis.base import \
+    DatabaseWrapper as PostgisDatabaseWrapper
 from django.contrib.gis.db.backends.postgis.schema import PostGISSchemaEditor
 
 

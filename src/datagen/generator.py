@@ -8,7 +8,6 @@ def execute(seed, atomic, append, admin_email, superuser_email,
     from django.conf import settings
     from datagen import factories
     from datagen.models import orgs
-    from datagen import providers
     state.seed = seed
 
     from django.db import connection

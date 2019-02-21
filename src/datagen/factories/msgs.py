@@ -1,8 +1,5 @@
-import random
-
-import factory
 import factory.fuzzy
-from factory import random
+
 from datagen.declarations import RandomRecord
 from datagen.factories.common import SmartModelFactory
 from datagen.models import channels, contacts, msgs

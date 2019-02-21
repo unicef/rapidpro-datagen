@@ -5,8 +5,6 @@ from factory.fuzzy import FuzzyDate, FuzzyDateTime
 
 from datagen.models import archives
 
-from .org import OrgFactory
-
 
 class ArchiveFactory(factory.DjangoModelFactory):
     # org = factory.SubFactory(OrgFactory)

@@ -8,8 +8,10 @@
 #     - a redis instance listening on localhost
 # -----------------------------------------------------------------------------------
 import copy
-import psycopg2.extensions
 import warnings
+
+import psycopg2.extensions
+from environ import Env
 
 from temba.settings_common import *  # noqa
 
@@ -17,7 +19,6 @@ SECRET_KEY = 'klj;kljhlkjhlkjhlkjh'
 
 DEBUG_TOOLBAR = True
 DEBUG = True
-from environ import Env
 
 env = Env()
 env.DB_SCHEMES['perf'] = 'datagen.db'

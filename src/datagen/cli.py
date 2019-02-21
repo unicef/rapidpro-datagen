@@ -6,6 +6,7 @@ from time import time
 import click
 
 import datagen
+import datagen.providers  # noqa
 
 from .generator import execute
 from .out import echo, warn
@@ -44,7 +45,7 @@ def cli(ctx, **kwargs):
 @click.pass_context
 def status(ctx, **kwargs):
     """display database numbers """
-    from datagen.models import orgs, auth, msgs
+    from datagen.models import orgs, auth
 
     from datagen.state import state
     echo('Seed: %s' % state.seed)
@@ -147,12 +148,12 @@ def db(ctx, organizations, user_num, channel_num, contact_num, archive_num, broa
     echo("Processes #%s " % processes)
     if processes > 1:
         numbers = list(map(lambda x: math.ceil(x / processes), [channel_num, contact_num,
-                                                                 broadcast_num, flow_num,
-                                                                 archive_num]))
+                                                                broadcast_num, flow_num,
+                                                                archive_num]))
 
         args = []
         for p in range(processes):
-            args.append([((p+seed)*broadcast_num), atomic,
+            args.append([((p + seed) * broadcast_num), atomic,
                          append, admin_email, superuser_email] + numbers)
         with multiprocessing.Pool(processes) as pool:
             out = pool.starmap(execute, args)

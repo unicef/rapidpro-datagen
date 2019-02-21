@@ -28,7 +28,6 @@ class FlowFactory(TembaModelFactory):
         # field_dependencies -> field_dependencies
 
 
-
 class FlowRunFactory(factory.DjangoModelFactory):
     org = factory.SubFactory(OrgFactory)
     session = factory.SubFactory(FlowSessionFactory)
