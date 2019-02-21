@@ -89,6 +89,8 @@ Use `--processes=1` if any problem
 
 ## Troubleshooting
 
+### Issues installing requirements
+
 If you get errors installing requirements you may need to install `python-dev` for
 the required version of Python (3.6).
 
@@ -99,3 +101,19 @@ sudo apt-get install python3.6-dev
 ```
 
 More [info here](https://stackoverflow.com/a/22077790/8207).
+
+
+### Apps aren't loaded
+
+If you get this message while running `migrate`:
+**django.core.exceptions.AppRegistryNotReady: Apps aren't loaded yet.**
+
+Double check that your `DATABASE_URL` environment variable is set and that it is pointing to a valid database.
+
+### GeoDB issues
+
+If you get this message while running `migrate`:
+**AttributeError: 'DatabaseOperations' object has no attribute 'geo_db_type'**
+
+You may need to change your `DATABASE_URL` from `postgres://` to `postgis://`.
+You'll also need to be running a version of Postgres with `postgis` installed.
