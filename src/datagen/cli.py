@@ -4,7 +4,6 @@ import os
 from time import time
 
 import click
-from django.db.models import Max
 
 import datagen
 
@@ -121,6 +120,8 @@ def db(ctx, organizations, user_num, channel_num, contact_num, archive_num, broa
     """ generate data """
     from datagen.models import msgs
     from datagen import factories
+    from django.db.models import Max
+
     append = not create
     if zap:
         ctx.invoke(erase_all)
