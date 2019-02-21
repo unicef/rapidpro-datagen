@@ -19,10 +19,17 @@ RapidPro sample data generator.
 
 ## Install
 
-Set `DATABASE_URL` environment variable to reflect your postgres database
+Set environment variable to reflect your postgres database
     
     $ export DATABASE_URL=postgres://postgres:@127.0.0.1:5432/rapidpro
-
+    $ export DJANGO_SETTINGS_MODULE=temba.settings
+    $ export DATABASE_NAME=rapidpro
+    $ 
+    $ export ADMIN_EMAIL=admin@example.com
+    $ export SUPERUSER_EMAIL=admin@example.com
+    $ export BASE_EMAIL=admin@example.com
+    $ export ATOMIC_TRANSACTIONS=1
+     
 Clone the repo and setup the virtualenv
 
     $ git clone https://github.com/unicef/rapidpro-datagen.git datagen
