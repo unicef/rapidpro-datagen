@@ -5,4 +5,4 @@
 rapidpro/temba/settings.py
 rapidpro/node_modules
 *.egg-info
-
+.env
