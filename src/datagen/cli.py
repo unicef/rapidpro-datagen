@@ -1,6 +1,7 @@
 import math
 import multiprocessing
 import os
+from logging.config import dictConfig
 from time import time
 
 import click
@@ -39,7 +40,7 @@ def cli(ctx, **kwargs):
     echo('Database: %s' % os.environ['DATABASE_URL'])
     import django
     django.setup()
-
+    dictConfig(LOGGING)
 
 @cli.command()
 @click.pass_context
