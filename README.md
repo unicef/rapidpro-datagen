@@ -23,6 +23,7 @@ Set environment variable to reflect your postgres database and django settings.
 It is recommended to set these in a file named `.env` in your project root and then
 they will be automatically set when entering the virtualenv.
     
+    $ export PYTHONPATH=$PWD/src:$PWD/rapidpro
     $ export DATABASE_URL=postgres://postgres:@127.0.0.1:5432/rapidpro
     $ export DJANGO_SETTINGS_MODULE=temba.settings
     $ export DATABASE_NAME=rapidpro
