@@ -1,7 +1,8 @@
 from factory import SubFactory
 
-from datagen.factories.common import TembaModelFactory
 from temba.campaigns.models import Campaign, CampaignEvent
+
+from datagen.factories.common import TembaModelFactory
 
 
 class CampaignFactory(TembaModelFactory):

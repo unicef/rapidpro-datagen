@@ -42,6 +42,7 @@ def cli(ctx, **kwargs):
     django.setup()
     dictConfig(LOGGING)
 
+
 @cli.command()
 @click.pass_context
 def status(ctx, **kwargs):
