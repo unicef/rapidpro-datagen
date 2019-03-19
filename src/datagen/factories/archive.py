@@ -1,7 +1,7 @@
 import datetime
 
 import factory
-from factory.fuzzy import FuzzyDate, FuzzyDateTime, FuzzyInteger
+from factory.fuzzy import FuzzyDate, FuzzyInteger
 
 from datagen.models import archives
 

@@ -3,7 +3,6 @@ import uuid
 import factory
 
 from datagen.declarations import RandomUser
-from datagen.state import state
 
 
 class SmartModelFactory(factory.DjangoModelFactory):
