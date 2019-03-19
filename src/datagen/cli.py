@@ -61,7 +61,7 @@ def status(ctx, **kwargs):
         echo('  Contacts: %s' % o.org_contacts.count())
         echo('  Broadcasts: %s' % o.broadcast_set.count())
         echo('  Flows: %s' % o.flows.count())
-        echo('  Campaigns: %s' % o.campaigns.count())
+        echo('  Campaigns: %s' % o.campaign_set.count())
         echo('  Archive: %s' % o.archives.count())
 
 

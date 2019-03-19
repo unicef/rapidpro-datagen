@@ -35,6 +35,7 @@ def execute(seed, atomic, append, admin_email, superuser_email,
             factories.FlowFactory.create_batch(flow_num, org=o)
             factories.CampaignFactory.create_batch(10, org=o)
             factories.ArchiveFactory.create_batch(archive_num, org=o)
+            factories.LabelFactory.create_batch(70, org=o)
     return True
     # from django.db import connection
     # connection.close()

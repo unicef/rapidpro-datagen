@@ -9,3 +9,4 @@ from .msgs import BroadcastFactory
 from .org import LanguageFactory, OrgFactory
 from .schedules import ScheduleFactory
 from .campaign import CampaignFactory
+from .labels import LabelFactory
