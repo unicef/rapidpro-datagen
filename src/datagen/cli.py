@@ -61,6 +61,8 @@ def status(ctx, **kwargs):
         echo('  Contacts: %s' % o.org_contacts.count())
         echo('  Broadcasts: %s' % o.broadcast_set.count())
         echo('  Flows: %s' % o.flows.count())
+        echo('  Campaigns: %s' % o.campaigns.count())
+        echo('  Archive: %s' % o.archives.count())
 
 
 @cli.command('zap')
@@ -114,8 +116,6 @@ def erase_all(ctx, **kwargs):
               help='Minimum number of Flow to create')
 @click.option('--broadcasts', 'broadcast_num', type=int, default=1000,
               help='Minimum number of Broadcasts to create')
-@click.option('--archives', type=int, default=10,
-              help='Minimum number of Archives to create')
 @click.pass_context
 def db(ctx, organizations, user_num, channel_num, contact_num, archive_num, broadcast_num, flow_num,
        verbosity, zap, atomic, base_email, create, seed, processes,
